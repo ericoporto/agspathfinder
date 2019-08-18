@@ -164,6 +164,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="$(SolutionDir)\..\ags\Common\core\platform.h" />
+    <ClInclude Include="jps.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="agspathfinder.cpp" />
