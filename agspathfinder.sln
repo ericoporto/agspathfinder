@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29209.62
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "agspathfinder", "agspathfinder\agspathfinder.vcxproj", "{3A6A7ED1-3164-4CC7-BEC1-80FDCAE2C845}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3A6A7ED1-3164-4CC7-BEC1-80FDCAE2C845}.Debug|x64.ActiveCfg = Debug|x64
+		{3A6A7ED1-3164-4CC7-BEC1-80FDCAE2C845}.Debug|x64.Build.0 = Debug|x64
+		{3A6A7ED1-3164-4CC7-BEC1-80FDCAE2C845}.Debug|x86.ActiveCfg = Debug|Win32
+		{3A6A7ED1-3164-4CC7-BEC1-80FDCAE2C845}.Debug|x86.Build.0 = Debug|Win32
+		{3A6A7ED1-3164-4CC7-BEC1-80FDCAE2C845}.Release|x64.ActiveCfg = Release|x64
+		{3A6A7ED1-3164-4CC7-BEC1-80FDCAE2C845}.Release|x64.Build.0 = Release|x64
+		{3A6A7ED1-3164-4CC7-BEC1-80FDCAE2C845}.Release|x86.ActiveCfg = Release|Win32
+		{3A6A7ED1-3164-4CC7-BEC1-80FDCAE2C845}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8BB49807-0A58-403F-AE53-567872E8D29D}
+	EndGlobalSection
+EndGlobal
