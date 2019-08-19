@@ -106,18 +106,186 @@ int PathNode_get_Y(PathNode* obj) {
 	return obj->Y;
 }
 
-void PathNode_set_Size(PathNode* obj, int val) {
-	obj->Size = val;
-}
-
-int PathNode_get_Size(PathNode* obj) {
-	return obj->Size;
-}
-
 PathNode* CreatePathNode(int X, int Y) {
 	PathNode* newPathNode = new PathNode(X, Y);
 	engine->RegisterManagedObject(newPathNode, &gManagedPathNodeInterface);
 	return newPathNode;
+}
+
+// -- do PathNodeArray stuff
+#include "PathNodeArray.h"
+
+
+//------------------------------------------------------------------------------
+
+PathNodeArray* PathNodeArray_Create(int32 count, PathNode* pathNode)
+{
+	PathNodeArray* arr;
+
+	if (count < 1)
+		arr = new PathNodeArray();
+	else if (pathNode == NULL)
+		arr = new PathNodeArray(count, CreatePathNode(-1,-1));
+	else
+		arr = new PathNodeArray(count, pathNode);
+
+	engine->RegisterManagedObject(arr, &PathNodeArray_Interface);
+
+	return (arr);
+}
+
+//------------------------------------------------------------------------------
+
+PathNodeArray* PathNodeArray_Copy(PathNodeArray* source)
+{
+	PathNodeArray* arr;
+
+	if (source == NULL)
+		arr = new PathNodeArray();
+	else
+		arr = new PathNodeArray(source);
+
+	engine->RegisterManagedObject(arr, &PathNodeArray_Interface);
+
+	return (arr);
+}
+
+//------------------------------------------------------------------------------
+
+void PathNodeArray_Swap(PathNodeArray* a, PathNodeArray* b)
+{
+	PathNodeArray::swap(a, b);
+}
+
+//------------------------------------------------------------------------------
+
+void PathNodeArray_Clear(PathNodeArray* arr)
+{
+	arr->clear();
+}
+
+//------------------------------------------------------------------------------
+
+int32 PathNodeArray_Empty(PathNodeArray* arr)
+{
+	return arr->empty();
+}
+
+//------------------------------------------------------------------------------
+
+void PathNodeArray_Erase(PathNodeArray* arr, int32 pos, int32 number)
+{
+	if (pos < 0)
+		pos += arr->size();
+
+	if (pos >= arr->size())
+		pos = arr->size() - 1;
+
+	if (number < 2)
+		arr->erase(pos);
+	else
+	{
+		number += pos;
+		if (number < 0)
+			number = 0;
+		else if (number > arr->size())
+			number = arr->size();
+
+		arr->erase(pos, number);
+	}
+}
+
+//------------------------------------------------------------------------------
+
+void PathNodeArray_Insert(PathNodeArray* arr, int32 pos, PathNode* pathNode)
+{
+	if (pos < 0)
+		pos += arr->size();
+
+	if (pos > arr->size())
+		pos = arr->size();
+
+	if (pathNode == NULL)
+		arr->insert(pos, CreatePathNode(-1,-1));
+	else
+		arr->insert(pos, pathNode);
+}
+
+//------------------------------------------------------------------------------
+
+void PathNodeArray_InsertPathNodeArray(PathNodeArray* arr, int32 pos, PathNodeArray* source)
+{
+	if (pos < 0)
+		pos += arr->size();
+
+	if (pos > arr->size())
+		pos = arr->size();
+
+	arr->insert(pos, source);
+}
+
+//------------------------------------------------------------------------------
+
+PathNode PathNodeArray_GetItems(PathNodeArray* arr, int32 i)
+{
+	if ((i < 0) || (i > arr->size()))
+		return PathNode(-1,-1);
+
+	return (*arr)[i];
+
+	//PathNode * pathNode = &(*arr)[i];
+	//return CreatePathNode(pathNode->X, pathNode->Y);
+}
+
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+void PathNodeArray_SetItems(PathNodeArray* arr, int32 i, PathNode* pathNode)
+{
+	if ((i < 0) || (i > arr->size()))
+		return;
+
+	(*arr)[i] = *pathNode;
+}
+
+//------------------------------------------------------------------------------
+
+PathNode* PathNodeArray_Pop(PathNodeArray* arr)
+{
+	if (!arr->empty()) {
+		PathNode* pathNode = arr->pop();
+		return CreatePathNode(pathNode->X, pathNode->Y);
+	}
+	else {
+		return (0);
+	}
+}
+
+//------------------------------------------------------------------------------
+
+void PathNodeArray_Push(PathNodeArray* arr, PathNode* pathNode)
+{
+	arr->push(pathNode == NULL ? CreatePathNode(0,0) : pathNode);
+}
+
+//------------------------------------------------------------------------------
+
+int32 PathNodeArray_GetSize(PathNodeArray* arr)
+{
+	return arr->size();
+}
+
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+void PathNodeArray_SetSize(PathNodeArray* arr, int32 size)
+{
+	arr->resize(size);
+}
+
+//------------------------------------------------------------------------------
+
+void PathNodeArray_Reserve(PathNodeArray* arr, int32 number)
+{
+	arr->reserve(number);
 }
 
 // -- do pathfinding
@@ -126,15 +294,12 @@ void AgsPathfinder_SetGridFromSprite(int sprite, int wall_color_threshold) {
 
 }
 
-PathNode** AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y) {
-	PathNode** pathNodes = new PathNode* [3];
-	pathNodes[0] = CreatePathNode(1, 2);
-	pathNodes[0]->Size = 3;
-	pathNodes[1] = CreatePathNode(3, 2);
-	pathNodes[1]->Size = 2;
-	pathNodes[2] = CreatePathNode(5, 6);
-	pathNodes[2]->Size = 1;
-	return pathNodes;
+PathNodeArray* AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y) {
+	PathNodeArray* pathNodeArr = new PathNodeArray;
+//	pathNodes[0] = CreatePathNode(1, 2);
+//	pathNodes[1] = CreatePathNode(3, 2);
+//	pathNodes[2] = CreatePathNode(5, 6);
+	return pathNodeArr;
 }
 
 #if AGS_PLATFORM_OS_WINDOWS
@@ -153,8 +318,34 @@ PathNode** AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int destinati
 		"  import static PathNode* Create(int X, int Y);\r\n"
 		"  import attribute int X;\r\n"
 		"  import attribute int Y;\r\n"
-		"  import attribute int Size;\r\n"
 		"}; \r\n"
+		"managed struct PathNodeArray {\r\n"
+		"  readonly int Capacity;\r\n"
+		"  /// Creates a new array.\r\n"
+		"  import static PathNodeArray *Create (int count = 0, PathNode* pathNode = 0); // $AUTOCOMPLETESTATICONLY$\r\n"
+		"  /// Copies an existing array.\r\n"
+		"  import static PathNodeArray *Copy (PathNodeArray *source); // $AUTOCOMPLETESTATICONLY$\r\n"
+		"  /// Swaps the values of two arrays.\r\n"
+		"  import static void Swap (PathNodeArray *a, PathNodeArray *b); // $AUTOCOMPLETESTATICONLY$\r\n"
+		"  /// Clears all values in the array.\r\n"
+		"  import void Clear ();\r\n"
+		"  /// Returns true when the array is empty.\r\n"
+		"  import bool Empty ();\r\n"
+		"  /// Removes specified value(s) from the array.\r\n"
+		"  import void Erase (int pos, int number = 1);\r\n"
+		"  /// Inserts a value at a specified place in the array.\r\n"
+		"  import void Insert (int pos, PathNode* pathNode);\r\n"
+		"  /// Inserts all values of the given array a the specified place.\r\n"
+		"  import void InsertPathNodeArray (int pos, PathNodeArray *source);\r\n"
+		"  import attribute PathNode Items[];\r\n"
+		"  /// Removes the last item of the array and returns it.\r\n"
+		"  import PathNode* Pop ();\r\n"
+		"  /// Adds the specified value to the end of the array.\r\n"
+		"  import void Push (PathNode* pathNode);\r\n"
+		"  import attribute int Size;\r\n"
+		"  /// Increases the capacity of the array. (Note: you don't need to do this manually)\r\n"
+		"  import void Reserve (int number);\r\n"
+		"};\r\n"
 		"  \r\n"
 		"struct AgsPathfinder { \r\n"
 		"  \r\n"
@@ -243,6 +434,12 @@ PathNode** AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int destinati
 
 
 #define REGISTER(x) engine->RegisterScriptFunction(#x, (void *) (x));
+#define REG_CLASS(c,x,a) engine->RegisterScriptFunction(#c "::" #x "^" #a, (void *) (c ## _ ## x));
+#define REG_ATTR(c,x) engine->RegisterScriptFunction(#c "::get_" #x, (void *) (c ## _Get ## x)); \
+                      engine->RegisterScriptFunction(#c "::set_" #x, (void *) (c ## _Set ## x));
+#define REG_ARR(c,x) engine->RegisterScriptFunction(#c "::geti_" #x, (void *) (c ## _Get ## x)); \
+                     engine->RegisterScriptFunction(#c "::seti_" #x, (void *) (c ## _Set ## x));
+
 #define STRINGIFY(s) STRINGIFY_X(s)
 #define STRINGIFY_X(s) #s
 
@@ -262,8 +459,22 @@ PathNode** AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int destinati
 		engine->RegisterScriptFunction("PathNode::get_X", PathNode_get_X);
 		engine->RegisterScriptFunction("PathNode::set_Y", PathNode_set_Y);
 		engine->RegisterScriptFunction("PathNode::get_Y", PathNode_get_Y);
-		engine->RegisterScriptFunction("PathNode::set_Size", PathNode_set_Size);
-		engine->RegisterScriptFunction("PathNode::get_Size", PathNode_get_Size);
+
+		engine->AddManagedObjectReader(PathNodeArrayInterface::name, &PathNodeArray_Reader);
+
+		REG_CLASS(PathNodeArray, Create, 2)
+		REG_CLASS(PathNodeArray, Copy, 1)
+		REG_CLASS(PathNodeArray, Swap, 2)
+		REG_CLASS(PathNodeArray, Clear, 0)
+		REG_CLASS(PathNodeArray, Empty, 0)
+		REG_CLASS(PathNodeArray, Erase, 2)
+		REG_CLASS(PathNodeArray, Insert, 2)
+		REG_CLASS(PathNodeArray, InsertPathNodeArray, 2)
+		REG_ARR(PathNodeArray, Items)
+		REG_CLASS(PathNodeArray, Pop, 0)
+		REG_CLASS(PathNodeArray, Push, 1)
+		REG_ATTR(PathNodeArray, Size)
+		REG_CLASS(PathNodeArray, Reserve, 1)
 
 		engine->RegisterScriptFunction("AgsPathfinder::SetGridFromSprite^2", AgsPathfinder_SetGridFromSprite);
 		engine->RegisterScriptFunction("AgsPathfinder::GetPathFromTo^4", AgsPathfinder_GetPathFromTo);

@@ -12,10 +12,6 @@ void PathNode::Set(int x, int y)
 	Y = y;
 }
 
-void PathNode::SetSize(int size)
-{
-	Size = size;
-}
 
 PathNode::~PathNode(void)
 {

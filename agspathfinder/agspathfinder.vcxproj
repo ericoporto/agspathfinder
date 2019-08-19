@@ -167,10 +167,12 @@
     <ClInclude Include="$(SolutionDir)\..\ags\Common\core\platform.h" />
     <ClInclude Include="PathNode.h" />
     <ClInclude Include="jps.h" />
+    <ClInclude Include="PathNodeArray.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="agspathfinder.cpp" />
     <ClCompile Include="PathNode.cpp" />
+    <ClCompile Include="PathNodeArray.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
