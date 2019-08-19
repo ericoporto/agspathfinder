@@ -293,16 +293,19 @@ void AgsPathfinder_SetGridFromSprite(int sprite, int wall_color_threshold) {
 }
 
 PathNodeArray* AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y) {
-	PathNodeArray* pathNodeArray = PathNodeArray_Create(0,NULL);
+	PathNodeArray* arr = new PathNodeArray();
 
-	PathNodeArray_Push(pathNodeArray, CreatePathNode(1, 2));
-	PathNodeArray_Push(pathNodeArray, CreatePathNode(3, 2));
-	PathNodeArray_Push(pathNodeArray, CreatePathNode(5, 6));
-	
+	arr->push(new PathNode(1, 2));
+	arr->push(new PathNode(3, 2));
+	arr->push(new PathNode(5, 6));
+
 //	pathNodes[0] = CreatePathNode(1, 2);
 //	pathNodes[1] = CreatePathNode(3, 2);
 //	pathNodes[2] = CreatePathNode(5, 6);
-	return pathNodeArray;
+
+	engine->RegisterManagedObject(arr, &PathNodeArray_Interface);
+
+	return (arr);
 }
 
 #if AGS_PLATFORM_OS_WINDOWS
