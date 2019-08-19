@@ -226,15 +226,13 @@ void PathNodeArray_InsertPathNodeArray(PathNodeArray* arr, int32 pos, PathNodeAr
 
 //------------------------------------------------------------------------------
 
-PathNode PathNodeArray_GetItems(PathNodeArray* arr, int32 i)
+PathNode* PathNodeArray_GetItems(PathNodeArray* arr, int32 i)
 {
 	if ((i < 0) || (i > arr->size()))
-		return PathNode(-1,-1);
+		return  CreatePathNode(-1,-1);
 
-	return (*arr)[i];
-
-	//PathNode * pathNode = &(*arr)[i];
-	//return CreatePathNode(pathNode->X, pathNode->Y);
+	PathNode * pathNode = &(*arr)[i];
+	return CreatePathNode(pathNode->X, pathNode->Y);
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -337,7 +335,7 @@ PathNodeArray* AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int desti
 		"  import void Insert (int pos, PathNode* pathNode);\r\n"
 		"  /// Inserts all values of the given array a the specified place.\r\n"
 		"  import void InsertPathNodeArray (int pos, PathNodeArray *source);\r\n"
-		"  import attribute PathNode Items[];\r\n"
+		"  import attribute PathNode* Items[];\r\n"
 		"  /// Removes the last item of the array and returns it.\r\n"
 		"  import PathNode* Pop ();\r\n"
 		"  /// Adds the specified value to the end of the array.\r\n"
