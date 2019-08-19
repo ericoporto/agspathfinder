@@ -120,6 +120,23 @@ PathNode* CreatePathNode(int X, int Y) {
 	return newPathNode;
 }
 
+// -- do pathfinding
+
+void AgsPathfinder_SetGridFromSprite(int sprite, int wall_color_threshold) {
+
+}
+
+PathNode** AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y) {
+	PathNode** pathNodes = new PathNode* [3];
+	pathNodes[0] = CreatePathNode(1, 2);
+	pathNodes[0]->Size = 3;
+	pathNodes[1] = CreatePathNode(3, 2);
+	pathNodes[1]->Size = 2;
+	pathNodes[2] = CreatePathNode(5, 6);
+	pathNodes[2]->Size = 1;
+	return pathNodes;
+}
+
 #if AGS_PLATFORM_OS_WINDOWS
 
 	//==============================================================================
@@ -247,7 +264,9 @@ PathNode* CreatePathNode(int X, int Y) {
 		engine->RegisterScriptFunction("PathNode::get_Y", PathNode_get_Y);
 		engine->RegisterScriptFunction("PathNode::set_Size", PathNode_set_Size);
 		engine->RegisterScriptFunction("PathNode::get_Size", PathNode_get_Size);
-		//engine->RegisterScriptFunction("AgsFastWFC::Overlapping^7", (void*)AgsFastWFC_Overlapping);
+
+		engine->RegisterScriptFunction("AgsPathfinder::SetGridFromSprite^2", AgsPathfinder_SetGridFromSprite);
+		engine->RegisterScriptFunction("AgsPathfinder::GetPathFromTo^4", AgsPathfinder_GetPathFromTo);
 
 	}
 
