@@ -6,6 +6,11 @@
 #define MIN_EDITOR_VERSION 1
 #define MIN_ENGINE_VERSION 3
 
+#define DEFAULT_RGB_R_SHIFT_32  16
+#define DEFAULT_RGB_G_SHIFT_32  8
+#define DEFAULT_RGB_B_SHIFT_32  0
+#define DEFAULT_RGB_A_SHIFT_32  24
+
 #if AGS_PLATFORM_OS_WINDOWS
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -49,6 +54,44 @@ namespace agspathfinder {
 		return TRUE;
 	}
 #endif
+
+#pragma region Color_Functions
+
+
+	int getr32(int c)
+	{
+		return ((c >> DEFAULT_RGB_R_SHIFT_32) & 0xFF);
+	}
+
+
+	int getg32(int c)
+	{
+		return ((c >> DEFAULT_RGB_G_SHIFT_32) & 0xFF);
+	}
+
+
+	int getb32(int c)
+	{
+		return ((c >> DEFAULT_RGB_B_SHIFT_32) & 0xFF);
+	}
+
+
+	int geta32(int c)
+	{
+		return ((c >> DEFAULT_RGB_A_SHIFT_32) & 0xFF);
+	}
+
+
+	int makeacol32(int r, int g, int b, int a)
+	{
+		return ((r << DEFAULT_RGB_R_SHIFT_32) |
+			(g << DEFAULT_RGB_G_SHIFT_32) |
+			(b << DEFAULT_RGB_B_SHIFT_32) |
+			(a << DEFAULT_RGB_A_SHIFT_32));
+	}
+
+#pragma endregion
+
 
 //define engine
 IAGSEngine* engine;
@@ -232,7 +275,8 @@ PathNode* PathNodeArray_GetItems(PathNodeArray* arr, int32 i)
 		return  CreatePathNode(-1,-1);
 
 	PathNode * pathNode = &(*arr)[i];
-	return CreatePathNode(pathNode->X, pathNode->Y);
+	engine->RegisterManagedObject(pathNode, &gManagedPathNodeInterface);
+	return pathNode;
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -251,7 +295,8 @@ PathNode* PathNodeArray_Pop(PathNodeArray* arr)
 {
 	if (!arr->empty()) {
 		PathNode* pathNode = arr->pop();
-		return CreatePathNode(pathNode->X, pathNode->Y);
+		engine->RegisterManagedObject(pathNode, &gManagedPathNodeInterface);
+		return pathNode;
 	}
 	else {
 		return (0);
@@ -287,21 +332,64 @@ void PathNodeArray_Reserve(PathNodeArray* arr, int32 number)
 }
 
 // -- do pathfinding
+struct MyGrid
+{
+	void Resize(int width, int height) {
+		Width = width;
+		Height = height;
+		Map.resize(width * height, false);
+	}
+
+	inline bool operator()(unsigned x, unsigned y) const // coordinates must be unsigned; method must be const
+	{
+		if (x < Width && y < Height) // Unsigned will wrap if < 0
+			return Map[y * Width + x];
+			// return false if terrain is not walkable or out-of-bounds.
+	}
+	int Width, Height;
+	std::vector<bool> Map;
+};
+
+MyGrid myGrid;
+JPS::Searcher<MyGrid> search(myGrid);
 
 void AgsPathfinder_SetGridFromSprite(int sprite, int wall_color_threshold) {
+	BITMAP* sprBitmap = engine->GetSpriteGraphic(sprite);
+	int sprWidth, sprHeight;
 
+	engine->GetBitmapDimensions(sprBitmap, &sprWidth, &sprHeight, nullptr);
+
+	unsigned char** sprCharBuffer = engine->GetRawBitmapSurface(sprBitmap);
+	unsigned int** sprLongBuffer = (unsigned int**)sprCharBuffer;
+
+	myGrid.Resize(sprWidth, sprHeight);
+
+	for (int y = 0; y < sprHeight; y++) {
+		for (int x = 0; x < sprWidth; x++) {
+			myGrid.Map[y * sprWidth] = getr32(sprLongBuffer[y][x]) < wall_color_threshold;
+		}
+	}
+	search.freeMemory();
 }
 
 PathNodeArray* AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y) {
+	JPS::PathVector path;  //path goes here
+	const unsigned step = 0; // 0 compresses the path as much as possible and only records waypoints.
+						 // Set this to 1 if you want a detailed single-step path
+						 // (e.g. if you plan to further mangle the path yourself),
+						 // or any other higher value to output every Nth position.
+						 // (Waypoints are always output regardless of the step size.)
+
+	bool found = search.findPath(path, JPS::Pos(origin_x, origin_y),
+		JPS::Pos(destination_x, destination_y), step);
+
 	PathNodeArray* arr = new PathNodeArray();
 
-	arr->push(new PathNode(1, 2));
-	arr->push(new PathNode(3, 2));
-	arr->push(new PathNode(5, 6));
-
-//	pathNodes[0] = CreatePathNode(1, 2);
-//	pathNodes[1] = CreatePathNode(3, 2);
-//	pathNodes[2] = CreatePathNode(5, 6);
+	if (found) {
+		for (JPS::PathVector::iterator it = path.begin(); it != path.end(); ++it) {
+			arr->push(new PathNode(it->x, it->y));
+		}
+	}
 
 	engine->RegisterManagedObject(arr, &PathNodeArray_Interface);
 
