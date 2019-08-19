@@ -24,7 +24,7 @@ struct PathNodeArray
 	int32 capacity;
 	std::vector<PathNode*> data;
 
-	// Excuse to use a member value
+	// call it everytime the array length changes
 	void _c() { capacity = data.capacity(); }
 
 	PathNodeArray() : data() { _c(); }

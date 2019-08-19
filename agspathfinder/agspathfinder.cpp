@@ -293,11 +293,16 @@ void AgsPathfinder_SetGridFromSprite(int sprite, int wall_color_threshold) {
 }
 
 PathNodeArray* AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y) {
-	PathNodeArray* pathNodeArr = new PathNodeArray;
+	PathNodeArray* pathNodeArray = PathNodeArray_Create(0,NULL);
+
+	PathNodeArray_Push(pathNodeArray, CreatePathNode(1, 2));
+	PathNodeArray_Push(pathNodeArray, CreatePathNode(3, 2));
+	PathNodeArray_Push(pathNodeArray, CreatePathNode(5, 6));
+	
 //	pathNodes[0] = CreatePathNode(1, 2);
 //	pathNodes[1] = CreatePathNode(3, 2);
 //	pathNodes[2] = CreatePathNode(5, 6);
-	return pathNodeArr;
+	return pathNodeArray;
 }
 
 #if AGS_PLATFORM_OS_WINDOWS
@@ -351,7 +356,7 @@ PathNodeArray* AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int desti
 		"  import static void SetGridFromSprite(int sprite, int wall_color_threshold = 4);\r\n"
 		"  \r\n"
 		"  /// Get nodes for set origin and destination \r\n"
-		"  import static PathNode*[] GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y);\r\n"
+		"  import static PathNodeArray* GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y);\r\n"
 		"}; \r\n";
 
 
