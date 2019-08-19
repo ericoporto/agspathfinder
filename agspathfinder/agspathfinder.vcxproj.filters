@@ -21,9 +21,15 @@
     <ClInclude Include="jps.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PathNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="agspathfinder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PathNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
