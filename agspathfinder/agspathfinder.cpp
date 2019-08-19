@@ -130,13 +130,22 @@ PathNode* CreatePathNode(int X, int Y) {
 
 	const char* ourScriptHeader =
 		"  \r\n"
+		"managed struct PathNode{ \r\n"
+		"  \r\n"
+		"  /// Creates a PathNode from X and Y points \r\n"
+		"  import static PathNode* Create(int X, int Y);\r\n"
+		"  import attribute int X;\r\n"
+		"  import attribute int Y;\r\n"
+		"  import attribute int Size;\r\n"
+		"}; \r\n"
+		"  \r\n"
 		"struct AgsPathfinder { \r\n"
 		"  \r\n"
 		"  /// Pass a sprite identifier and the bottom threshold for walls color\r\n"
 		"  import static void SetGridFromSprite(int sprite, int wall_color_threshold = 4);\r\n"
 		"  \r\n"
 		"  /// Get nodes for set origin and destination \r\n"
-		"  import static pathNode*[] GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y);\r\n"
+		"  import static PathNode*[] GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y);\r\n"
 		"}; \r\n";
 
 
