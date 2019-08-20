@@ -165,8 +165,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="$(SolutionDir)\..\ags\Common\core\platform.h" />
+    <ClInclude Include="route_finder_jps.inl" />
     <ClInclude Include="PathNode.h" />
-    <ClInclude Include="jps.h" />
     <ClInclude Include="PathNodeArray.h" />
   </ItemGroup>
   <ItemGroup>

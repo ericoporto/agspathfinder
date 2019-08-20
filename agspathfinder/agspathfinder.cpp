@@ -26,7 +26,7 @@
 #endif
 
 #include "plugin/agsplugin.h"
-#include "jps.h"
+#include "route_finder_jps.inl"
 
 #if defined(BUILTIN_PLUGINS)
 namespace agspathfinder {
@@ -332,26 +332,56 @@ void PathNodeArray_Reserve(PathNodeArray* arr, int32 number)
 }
 
 // -- do pathfinding
-struct MyGrid
+#define MAKE_INTCOORD(x,y) (((unsigned short)x << 16) | ((unsigned short)y))
+
+const int MAXNAVPOINTS = 100;
+int navpoints[MAXNAVPOINTS];
+int num_navpoints;
+
+int lastcx;
+int lastcy;
+
+Navigation nav;
+
+bool can_see_from(int x1, int y1, int x2, int y2)
 {
-	void Resize(int width, int height) {
-		Width = width;
-		Height = height;
-		Map.resize(width * height, false);
-	}
+	lastcx = x1;
+	lastcy = y1;
 
-	inline bool operator()(unsigned x, unsigned y) const // coordinates must be unsigned; method must be const
+	if ((x1 == x2) && (y1 == y2))
+		return 1;
+
+	return !nav.TraceLine(x1, y1, x2, y2, lastcx, lastcy);
+}
+
+// new routing using JPS
+PathNodeArray* find_route_jps(int fromx, int fromy, int destx, int desty)
+{
+	static std::vector<int> path, cpath;
+	path.clear();
+	cpath.clear();
+
+	if (nav.NavigateRefined(fromx, fromy, destx, desty, path, cpath) == Navigation::NAV_UNREACHABLE)
+		return 0;
+
+	num_navpoints = 0;
+
+	// new behavior: cut path if too complex rather than abort with error message
+	int count = std::min<int>((int)cpath.size(), MAXNAVPOINTS);
+
+	PathNodeArray* pathNodeArr = new PathNodeArray();
+
+	for (int i = 0; i < count; i++)
 	{
-		if (x < Width && y < Height) // Unsigned will wrap if < 0
-			return Map[y * Width + x];
-			// return false if terrain is not walkable or out-of-bounds.
-	}
-	int Width, Height;
-	std::vector<bool> Map;
-};
+		int x, y;
+		nav.UnpackSquare(cpath[i], x, y);
 
-MyGrid myGrid;
-JPS::Searcher<MyGrid> search(myGrid);
+		pathNodeArr->push(new PathNode(x, y));
+
+	}
+
+	return pathNodeArr;
+}
 
 void AgsPathfinder_SetGridFromSprite(int sprite, int wall_color_threshold) {
 	BITMAP* sprBitmap = engine->GetSpriteGraphic(sprite);
@@ -362,33 +392,30 @@ void AgsPathfinder_SetGridFromSprite(int sprite, int wall_color_threshold) {
 	unsigned char** sprCharBuffer = engine->GetRawBitmapSurface(sprBitmap);
 	unsigned int** sprLongBuffer = (unsigned int**)sprCharBuffer;
 
-	myGrid.Resize(sprWidth, sprHeight);
+	nav.Resize(sprWidth, sprHeight);
 
-	for (int y = 0; y < sprHeight; y++) {
-		for (int x = 0; x < sprWidth; x++) {
-			myGrid.Map[y * sprWidth] = getr32(sprLongBuffer[y][x]) < wall_color_threshold;
-		}
-	}
-	search.freeMemory();
+	for (int y = 0; y < sprHeight; y++)
+		nav.SetMapRow(y, sprCharBuffer[y]);	
 }
 
-PathNodeArray* AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y) {
-	JPS::PathVector path;  //path goes here
-	const unsigned step = 0; // 0 compresses the path as much as possible and only records waypoints.
-						 // Set this to 1 if you want a detailed single-step path
-						 // (e.g. if you plan to further mangle the path yourself),
-						 // or any other higher value to output every Nth position.
-						 // (Waypoints are always output regardless of the step size.)
-
-	bool found = search.findPath(path, JPS::Pos(origin_x, origin_y),
-		JPS::Pos(destination_x, destination_y), step);
+PathNodeArray* AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y, int step = 0) {
+	num_navpoints = 0;
+	int srcx = origin_x;
+	int srcy = origin_y;
+	int xx = destination_x;
+	int yy = destination_y;
 
 	PathNodeArray* arr = new PathNodeArray();
 
-	if (found) {
-		for (JPS::PathVector::iterator it = path.begin(); it != path.end(); ++it) {
-			arr->push(new PathNode(it->x, it->y));
-		}
+	if (xx < 0 || xx >= nav.mapWidth || yy < 0 || yy >= nav.mapHeight || !nav.Walkable(xx, yy) || !nav.Walkable(srcx, srcy)) {
+
+	} else 	if (can_see_from(srcx, srcy, xx, yy))
+	{
+		arr->push(new PathNode(srcx, srcy));
+		arr->push(new PathNode(xx, yy));
+	}
+	else {
+		arr->insert(0,find_route_jps(srcx, srcy, xx, yy));
 	}
 
 	engine->RegisterManagedObject(arr, &PathNodeArray_Interface);
@@ -447,7 +474,7 @@ PathNodeArray* AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int desti
 		"  import static void SetGridFromSprite(int sprite, int wall_color_threshold = 4);\r\n"
 		"  \r\n"
 		"  /// Get nodes for set origin and destination \r\n"
-		"  import static PathNodeArray* GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y);\r\n"
+		"  import static PathNodeArray* GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y, int step =0);\r\n"
 		"}; \r\n";
 
 
@@ -571,7 +598,7 @@ PathNodeArray* AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int desti
 		REG_CLASS(PathNodeArray, Reserve, 1)
 
 		engine->RegisterScriptFunction("AgsPathfinder::SetGridFromSprite^2", AgsPathfinder_SetGridFromSprite);
-		engine->RegisterScriptFunction("AgsPathfinder::GetPathFromTo^4", AgsPathfinder_GetPathFromTo);
+		engine->RegisterScriptFunction("AgsPathfinder::GetPathFromTo^5", AgsPathfinder_GetPathFromTo);
 
 	}
 

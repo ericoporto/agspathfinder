@@ -18,13 +18,13 @@
     <ClInclude Include="$(SolutionDir)\..\ags\Common\core\platform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="jps.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="PathNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PathNodeArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="route_finder_jps.inl">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
