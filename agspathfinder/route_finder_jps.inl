@@ -58,7 +58,7 @@ public:
 	bool TraceLine(int srcx, int srcy, int targx, int targy, int& lastValidX, int& lastValidY) const;
 	bool TraceLine(int srcx, int srcy, int targx, int targy, std::vector<int>* rpath = nullptr) const;
 
-	inline void SetMapRow(int y, const unsigned char* row) { map[y] = row; }
+	inline void SetMapRow(int y,  unsigned char* row) { map[y] = row; }
 
 	inline static int PackSquare(int x, int y);
 	inline static void UnpackSquare(int sq, int& x, int& y);
@@ -66,6 +66,7 @@ public:
 	inline bool Walkable(int x, int y) const;
 	int mapWidth;
 	int mapHeight;
+	std::vector<unsigned char*> map;
 private:
 	// priority queue entry
 	struct Entry
@@ -92,7 +93,6 @@ private:
 		}
 	};
 
-	std::vector<const unsigned char*> map;
 
 	typedef unsigned short tFrameId;
 	typedef int tPrev;

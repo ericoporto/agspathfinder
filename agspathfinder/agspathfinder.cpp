@@ -385,17 +385,31 @@ PathNodeArray* find_route_jps(int fromx, int fromy, int destx, int desty)
 
 void AgsPathfinder_SetGridFromSprite(int sprite, int wall_color_threshold) {
 	BITMAP* sprBitmap = engine->GetSpriteGraphic(sprite);
-	int sprWidth, sprHeight;
+	int sprWidth, sprHeight, colorDepth;
 
-	engine->GetBitmapDimensions(sprBitmap, &sprWidth, &sprHeight, nullptr);
+	engine->GetBitmapDimensions(sprBitmap, &sprWidth, &sprHeight, &colorDepth);
+
+	while (!nav.map.empty()) {
+		unsigned char* aRow = nav.map.back();
+		nav.map.pop_back();
+		delete aRow;
+	}
 
 	unsigned char** sprCharBuffer = engine->GetRawBitmapSurface(sprBitmap);
 	unsigned int** sprLongBuffer = (unsigned int**)sprCharBuffer;
 
 	nav.Resize(sprWidth, sprHeight);
 
-	for (int y = 0; y < sprHeight; y++)
-		nav.SetMapRow(y, sprCharBuffer[y]);	
+	for (int y = 0; y < sprHeight; y++) {
+		nav.map[y] = new unsigned char[sprWidth];
+		for (int x = 0; x < sprWidth; x++) {
+			if (colorDepth == 32) {
+				nav.map[y][x] = (unsigned char)getr32(sprLongBuffer[y][x]);
+			}
+		}
+	}
+			
+	engine->ReleaseBitmapSurface(sprBitmap);
 }
 
 PathNodeArray* AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y, int step = 0) {
@@ -409,7 +423,7 @@ PathNodeArray* AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int desti
 
 	if (xx < 0 || xx >= nav.mapWidth || yy < 0 || yy >= nav.mapHeight || !nav.Walkable(xx, yy) || !nav.Walkable(srcx, srcy)) {
 
-	} else 	if (can_see_from(srcx, srcy, xx, yy))
+	}  else 	if (can_see_from(srcx, srcy, xx, yy))
 	{
 		arr->push(new PathNode(srcx, srcy));
 		arr->push(new PathNode(xx, yy));
