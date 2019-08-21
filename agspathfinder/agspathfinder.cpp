@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <iostream>
+#include <cstring>
 
 #if !defined(BUILTIN_PLUGINS)
 #define THIS_IS_THE_PLUGIN
@@ -274,7 +275,7 @@ PathNode* PathNodeArray_GetItems(PathNodeArray* arr, int32 i)
 	if ((i < 0) || (i > arr->size()))
 		return  CreatePathNode(-1,-1);
 
-	PathNode * pathNode = &(*arr)[i];
+	PathNode * pathNode = (*arr).data[i];
 	engine->RegisterManagedObject(pathNode, &gManagedPathNodeInterface);
 	return pathNode;
 }
@@ -589,11 +590,11 @@ PathNodeArray* AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int desti
 		//register functions
 		engine->AddManagedObjectReader(ManagedPathNodeInterface::typeName, &gManagedPathNodeReader);
 
-		engine->RegisterScriptFunction("PathNode::Create^2", CreatePathNode);
-		engine->RegisterScriptFunction("PathNode::set_X", PathNode_set_X);
-		engine->RegisterScriptFunction("PathNode::get_X", PathNode_get_X);
-		engine->RegisterScriptFunction("PathNode::set_Y", PathNode_set_Y);
-		engine->RegisterScriptFunction("PathNode::get_Y", PathNode_get_Y);
+		engine->RegisterScriptFunction("PathNode::Create^2", (void *) CreatePathNode);
+		engine->RegisterScriptFunction("PathNode::set_X", (void *) PathNode_set_X);
+		engine->RegisterScriptFunction("PathNode::get_X", (void *) PathNode_get_X);
+		engine->RegisterScriptFunction("PathNode::set_Y", (void *) PathNode_set_Y);
+		engine->RegisterScriptFunction("PathNode::get_Y", (void *) PathNode_get_Y);
 
 		engine->AddManagedObjectReader(PathNodeArrayInterface::name, &PathNodeArray_Reader);
 
@@ -611,8 +612,8 @@ PathNodeArray* AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int desti
 		REG_ATTR(PathNodeArray, Size)
 		REG_CLASS(PathNodeArray, Reserve, 1)
 
-		engine->RegisterScriptFunction("AgsPathfinder::SetGridFromSprite^2", AgsPathfinder_SetGridFromSprite);
-		engine->RegisterScriptFunction("AgsPathfinder::GetPathFromTo^5", AgsPathfinder_GetPathFromTo);
+		engine->RegisterScriptFunction("AgsPathfinder::SetGridFromSprite^2", (void *) AgsPathfinder_SetGridFromSprite);
+		engine->RegisterScriptFunction("AgsPathfinder::GetPathFromTo^5", (void *) AgsPathfinder_GetPathFromTo);
 
 	}
 
