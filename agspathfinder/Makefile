@@ -1,14 +1,14 @@
 UNAME := $(shell uname)
 
 INCDIR = ../../ags/Engine ../../ags/Common
-LIBDIR = 
+LIBDIR =
 CC = gcc
 CXX = g++
-CFLAGS = -fPIC -fvisibility=hidden -O2 -g -Wall 
-LIBS = -lm -lstdc++ 
+CFLAGS = -fPIC -fvisibility=hidden -O2 -g -Wall
+LIBS = -lm -lstdc++
 
 ifeq ($(UNAME), Darwin)
-TARGET = libagsfastwfc.dylib
+TARGET = libagspathfinder.dylib
 CFLAGS += -DMAC_VERSION
 else
 TARGET = libagspathfinder.so
