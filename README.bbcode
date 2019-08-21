@@ -1,0 +1,48 @@
+[size=14pt][b]AGS Pathfinder Plugin[/b][/size] [color=gray][b] version 0.1.0 [/b][/color]
+
+Get the plugin: [url=https://github.com/ericoporto/agspathfinder/releases/download/0.1.0/agspathfinder.dll]agspathfinder.dll[/url], [url=https://github.com/ericoporto/agspathfinder/releases/download/0.1.0/libagspathfinder.so]libagspathfinder.so[/url],  [url=https://github.com/ericoporto/agspathfinder/releases/download/0.1.0/libagspathfinder.dylib]libagspathfinder.dylib[/url]
+[url=https://github.com/ericoporto/agspathfinder]GitHub Repo[/url] | [url=https://github.com/ericoporto/agspathfinder/releases/download/0.1.0/agspathfinder_demo_windows.zip]Demo Windows[/url] | [url=https://github.com/ericoporto/agspathfinder/releases/download/0.1.0/agspathfinder_demo_linux.tar.xz]Demo Linux[/url]
+
+[img]https://raw.githubusercontent.com/ericoporto/agspathfinder/master/agspathfinder_demo.gif[/img]
+
+This plugin has copy of the actual pathfinder used by Adventure Game Studio, and exposes an interface to interact directly with it.
+
+It's in experimental state because I believe that once the API for it is figured out, it's facilities would be provided by AGS Engine itself and then this Plugin would not make sense anymore.
+
+[b]AGS Pathfinder usage[/b]
+
+Pathfinding is provided in three steps.
+
+1. Set the map, Pathfinder will generate the nodes. Don't do this every frame.
+
+2. Get the path as a vector by passing an origin and a destination.
+   If your node map is not too gigantic, this should be very fast.
+   If start and end of the vector doesn't match your origin and destination, no
+   path was found. Ideally the vector returned should be empty.
+
+3. Consume the returned vector and do something with it.
+
+[code=ags]
+// 1 Pass sprite 1 to be used as map
+AgsPathfinder.SetGridFromSprite(1);
+
+// 2 Calculates the path and returns a vector containing all the nodes
+PathNodeArray* pathNodeArr = AgsPathfinder.GetPathFromTo(origin_X, origin_Y, destination_X, destination_Y);
+
+// 3 Consume your path node by node
+while(!pathNodeArr.Empty()){
+  PathNode* pathNode = pathNodeArr.Pop();
+  // do something with pathNode.X and pathNode.Y
+}
+[/code]
+
+[b]AGS Pathfinder Script API[/b]
+
+
+[b][font=courier]void AgsPathfinder.SetGridFromSprite(int sprite)[/font][/b]
+
+Pass a sprite to be used as the walkable map. Real black (000000) identifies walls.
+
+[b][font=courier]PathNodeArray* GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y)[/font][/b]
+
+Get a PathNodeArray containing each Node of the path for the provided origin and destination.
