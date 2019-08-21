@@ -612,8 +612,8 @@ PathNodeArray* AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int desti
 		REG_ATTR(PathNodeArray, Size)
 		REG_CLASS(PathNodeArray, Reserve, 1)
 
-		engine->RegisterScriptFunction("AgsPathfinder::SetGridFromSprite^2", (void *) AgsPathfinder_SetGridFromSprite);
-		engine->RegisterScriptFunction("AgsPathfinder::GetPathFromTo^5", (void *) AgsPathfinder_GetPathFromTo);
+		engine->RegisterScriptFunction("AgsPathfinder::SetGridFromSprite^1", (void *) AgsPathfinder_SetGridFromSprite);
+		engine->RegisterScriptFunction("AgsPathfinder::GetPathFromTo^4", (void *) AgsPathfinder_GetPathFromTo);
 
 	}
 
