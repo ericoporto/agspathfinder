@@ -60,7 +60,7 @@ first you need to clone this repository to the folder you clone your repos (ex: 
 If you haven't already, also clone AGS and set the branch for ags3.
 
 ```
-git clone https://github.com/ericoporto/agsfastwfc.git
+git clone https://github.com/ericoporto/agspathfinder.git
 git clone https://github.com/adventuregamestudio/ags.git
 pushd ags
 git checkout ags3
