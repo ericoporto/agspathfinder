@@ -4,7 +4,7 @@ INCDIR = ../../ags/Engine ../../ags/Common
 LIBDIR =
 CC = gcc
 CXX = g++
-CFLAGS = -fPIC -fvisibility=hidden -O2 -g -Wall
+CFLAGS = -fPIC -fvisibility=hidden -O2 -g -Wall -std=c++11
 LIBS = -lm -lstdc++
 
 ifeq ($(UNAME), Darwin)
