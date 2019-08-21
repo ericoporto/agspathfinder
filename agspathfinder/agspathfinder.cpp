@@ -280,7 +280,7 @@ PathNode* PathNodeArray_GetItems(PathNodeArray* arr, int32 i)
 	return pathNode;
 }
 
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 void PathNodeArray_SetItems(PathNodeArray* arr, int32 i, PathNode* pathNode)
 {
@@ -318,7 +318,7 @@ int32 PathNodeArray_GetSize(PathNodeArray* arr)
 	return arr->size();
 }
 
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 void PathNodeArray_SetSize(PathNodeArray* arr, int32 size)
 {
@@ -384,7 +384,7 @@ PathNodeArray* find_route_jps(int fromx, int fromy, int destx, int desty)
 	return pathNodeArr;
 }
 
-void AgsPathfinder_SetGridFromSprite(int sprite, int wall_color_threshold) {
+void AgsPathfinder_SetGridFromSprite(int sprite) {
 	BITMAP* sprBitmap = engine->GetSpriteGraphic(sprite);
 	int sprWidth, sprHeight, colorDepth;
 
@@ -409,11 +409,11 @@ void AgsPathfinder_SetGridFromSprite(int sprite, int wall_color_threshold) {
 			}
 		}
 	}
-			
+
 	engine->ReleaseBitmapSurface(sprBitmap);
 }
 
-PathNodeArray* AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y, int step = 0) {
+PathNodeArray* AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y) {
 	num_navpoints = 0;
 	int srcx = origin_x;
 	int srcy = origin_y;
@@ -486,10 +486,10 @@ PathNodeArray* AgsPathfinder_GetPathFromTo(int origin_x, int origin_y, int desti
 		"struct AgsPathfinder { \r\n"
 		"  \r\n"
 		"  /// Pass a sprite identifier and the bottom threshold for walls color\r\n"
-		"  import static void SetGridFromSprite(int sprite, int wall_color_threshold = 4);\r\n"
+		"  import static void SetGridFromSprite(int sprite);\r\n"
 		"  \r\n"
 		"  /// Get nodes for set origin and destination \r\n"
-		"  import static PathNodeArray* GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y, int step =0);\r\n"
+		"  import static PathNodeArray* GetPathFromTo(int origin_x, int origin_y, int destination_x, int destination_y);\r\n"
 		"}; \r\n";
 
 
